@@ -44,7 +44,9 @@ whole_data<-rbind(train_set,test_set)
 #question 2 Extracts only the measurements on the mean and standard deviation for each measurement.
 #doesnot work: subset (whole_data, colnames(whole_data)=="mean")
 #does not work:data_extract<-select(whole_data,subject,Activity,matches("mean"))
+#grep function to subset variables names contains "mean" or "std" return character string since put value=TRUE
 meanstd<-grep("mean|std", names(whole_data), value=TRUE)
+#list data 
 data_extract<-whole_data[,c("subject","Activity",meanstd)]
 #question 3:Uses descriptive activity names to name the activities in the data set
 #first copy activity_labels.txt
@@ -54,16 +56,17 @@ data_extract<-whole_data[,c("subject","Activity",meanstd)]
 #4 SITTING
 #5 STANDING
 #6 LAYING
-whole_data$subject<-factor(whole_data$subject,levels=c(1,2,3,4,5,6),labels= c("WALKING","WALKING_UPSTAIRS","WALKING_DOWNSTAIRS","SITTING","STANDING","LAYING"))
-
+# to label subject into data_extract
+#whole_data$subject<-factor(whole_data$subject,levels=c(1,2,3,4,5,6),labels= c("WALKING","WALKING_UPSTAIRS","WALKING_DOWNSTAIRS","SITTING","STANDING","LAYING"))
+data_extract$subject<-factor(data_extract$subject,levels=c(1,2,3,4,5,6),labels= c("WALKING","WALKING_UPSTAIRS","WALKING_DOWNSTAIRS","SITTING","STANDING","LAYING"))
 #question 4
 #Appropriately labels the data set with descriptive variable names.
 #I did it in the question 1.2
 #question 5
 #From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-library(data.table)
-data.table(whole_data)
+#Dot notation using aggregate
 #whole_data_tidy<-whole_data%.% group_by(subject,Activity)%.%mutate(subjectm = mean(subject),Activitym=mean(Activity))%.%
-data_tidy<-aggregate(.~subject +Activity, whole_data,mean)
-
+#data_tidy<-aggregate(Activity~subject , whole_data,mean)
+data_tidy<-aggregate(.~subject +Activity, data=data_extract, mean,na.rm=TRUE)
+#write to txt file
 write.table(data_tidy, file = ("tidydata.txt"))
